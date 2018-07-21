@@ -21,26 +21,32 @@ $ sudo apt-get install oracle-java8-installer
 $ java -version
 
 # Installing Elasticsearch
-//First, you need to add Elastic’s signing key so that the downloaded package can be verified
-$ t -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+//Install the official Elastic APT package signing key:
+$ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 
---For Debian, we need to then install the apt-transport-https package:
+//Install the apt-transport-https package, which is required to retrieve deb packages served over HTTPS:
 $ sudo apt-get install apt-transport-https
 
---The next step is to add the repository definition to your system:
-$ echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+//Add the APT repository information to your server’s list of sources:
+$ echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic.list
 
+//Update the list of available packages:
 $ sudo apt-get update
-$ sudo apt-get install elasticsearch
+
+//Install the elasticsearch package:
+$ sudo apt-get install -y elasticsearch
 
 //For our example, since we are installing Elasticsearch on server, it is a good best practice to bind Elasticsearch to either a private IP or localhost:
 $ sudo vim /etc/elasticsearch/elasticsearch.yml
-$ network.host: "localhost"
+$ network.host: 0.0.0.0
 $ http.port:9200
 
---Run ELasticsearch
-$ sudo service elasticsearch start
-
-//To confirm that everything is working as expected, point curl or your browser to http://localhost:9200
+//Run ELasticsearch
+$ sudo systemctl start elasticsearch.service
 
 
+//Check Elasticsearch status
+$ sudo systemctl status elasticsearch.service
+
+//To confirm that everything is working as expected, point curl or your browser to http://[anyIP]:9200
+//It will show some JSON data about 
