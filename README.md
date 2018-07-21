@@ -22,9 +22,11 @@ $ java -version
 
 # Installing Elasticsearch
 //Install the official Elastic APT package signing key:
+
 $ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 
 //Install the apt-transport-https package, which is required to retrieve deb packages served over HTTPS:
+
 $ sudo apt-get install apt-transport-https
 
 //Add the APT repository information to your server’s list of sources:
