@@ -70,82 +70,46 @@ http://[server_ip_address]:9200/
 //Download and install the Debian pacakage manually
 //The Debian package for Kibana v6.3.1 can be downloaded from the website and installed as follows:
 
-$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb
-$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb.sha512
-$ shasum -a 512 -c elasticsearch-6.3.1.deb.sha512
-$ sudo dpkg -i elasticsearch-6.3.1.deb
+$ wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.1-amd64.deb
+$ shasum -a 512 kibana-6.3.1-amd64.deb
+$ sudo dpkg -i kibana-6.3.1-amd64.deb
 
-//Enable and run Elasticsearch with systemd
-//To configure Elasticsearch to start automatically when the system boots up, run the following commands:
+//Enable and run Kibana with systemd
+//To configure Kibana to start automatically when the system boots up, run the following commands:
 
-$ sudo systemctl enable elasticsearch.service
-$ sudo systemctl start elasticsearch.service
+$ sudo systemctl enable kibana.service
+$ sudo systemctl start kibana.service
 
 //To check the status of Elasticsearch service
-$ sudo systemctl status elasticsearch.service
+$ sudo systemctl status kibana.service
 
 //To stop the service
-$ sudo systemctl stop elasticsearch.service
+$ sudo systemctl stop kibana.service
+
+//We will not change any configuration in Kibana as it will be configure by Nginx
+//But, if you want to edit the configuration file, use this command
+$ sudo nano /etc/kibana/kibana.yml
 
 
-//Next, we will configure Elasticsearch
+#Install Nginx
+//Because we configured Kibana to listen on server IP, we must set up a reverse proxy to allow external access to it. We will use Nginx for this purpose.
 
-//Edit the configuration file by this command
-$ sudo nano /etc/elasticsearch/elasticsearch.yml
+//Use apt to install Nginx and Apache2-utils
+$ sudo apt-get install nginx apache2-utils
 
-//Find the line that specifies network.host, uncomment it, and replace its value with "0.0.0.0" so it looks like this:
-network.host: 0.0.0.0
+//Use htpasswd to create an admin user, called "kibanaadmin" (you should use another name), that can access the Kibana web interface
+$ sudo htpasswd -c /etc/nginx/htpasswd.users kibanaadmin
 
-//Find the line that specifies http.port, uncomment it, and replace its value with "9200" so it looks like this:
-http.port: 9200
+//Now open the Nginx default server block
+$ sudo nano /etc/nginx/sites-available/default
 
-//This configuration will make Elasticsearch listen all network interface (included the server IP) on port 9200
+//Be sure to update the server_name to match your server's name or IP and also the port where Elasticsearch running
 
-//Restart the service after configuration update
-$ sudo systemctl restart elasticsearch.service
+//Now restart Nginx to put our changes into effect
+$ sudo service nginx restart
 
-//Now, go to browser and check if Elasticsearch is running
-http://[server_ip_address]:9200/
-
-//You will see the respond with the ELasticsearch famous tag "You Know, for Search"
-
-
-
-
-
-
-//Install the official Elastic APT package signing key:
-$ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-
-//Install the apt-transport-https package, which is required to retrieve deb packages served over HTTPS:
-$ sudo apt-get install apt-transport-https
-
-//Add the APT repository information to your server’s list of sources:
-$ echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic.list
-
-//Update the list of available packages:
-$ sudo apt-get update
-
-//Install the elasticsearch package:
-$ sudo apt-get install -y elasticsearch
-
-//For our example, since we are installing Elasticsearch on server, it is a good best practice to bind Elasticsearch to either a private IP or localhost:
-$ sudo vim /etc/elasticsearch/elasticsearch.yml
-$ network.host: 0.0.0.0
-$ http.port:9200
-
-//Run ELasticsearch
-$ sudo systemctl start elasticsearch.service
-
-//Check Elasticsearch status
-$ sudo systemctl status elasticsearch.service
-
-//To confirm that everything is working as expected, point curl or your browser to http://[anyIP]:9200
-
-//It will show some JSON data about 
-
-
-# Installing Kibana
+//Kibana is now accessible via public IP address of your ELK Server i.e. http://[server_ip_address]:[kibana_port]
+//Go to browser and enter the credentials
 
 
 
