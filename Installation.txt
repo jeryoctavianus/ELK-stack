@@ -131,7 +131,7 @@ $ sudo systemctl stop logstash.service
 
 //If you don't have a DNS setup, you will have to add your ELK Server's private IP address to the subjectAltName (SAN)
 //To do so, open the OpenSSL configuration file
-$ sudo vi /etc/ssl/openssl.cnf
+$ sudo nano /etc/ssl/openssl.cnf
 
 //Find the [ v3_ca ] section in the file, and add this line under it (substituting in the ELK Server's private IP address)
 subjectAltName = IP: ELK_server_private_IP
