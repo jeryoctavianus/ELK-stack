@@ -1,4 +1,5 @@
-//Elasticsearch and Logstash require Java, so we will install that first. We will install a recent version of Oracle Java 8 because that is what Elasticsearch recommends.
+//Elasticsearch and Logstash require Java, so we will install that first
+//We will install a recent version of Oracle Java 8 because that is what Elasticsearch recommends.
 
 # Install Java 8
 //Installing the default JRE/JDK
@@ -22,17 +23,15 @@ $ javac -version
 
 
 # Installing Elasticsearch
-//Download and install the Debian pacakage manually
+--Download and install the Debian pacakage manually
 //The Debian package for Elasticsearch v6.3.1 can be downloaded from the website and installed as follows:
-
 $ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb
 $ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb.sha512
 $ shasum -a 512 -c elasticsearch-6.3.1.deb.sha512
 $ sudo dpkg -i elasticsearch-6.3.1.deb
 
-//Enable and run Elasticsearch with systemd
+--Enable and run Elasticsearch with systemd
 //To configure Elasticsearch to start automatically when the system boots up, run the following commands:
-
 $ sudo systemctl enable elasticsearch.service
 $ sudo systemctl start elasticsearch.service
 
@@ -43,7 +42,7 @@ $ sudo systemctl status elasticsearch.service
 $ sudo systemctl stop elasticsearch.service
 
 
-//Next, we will configure Elasticsearch
+--Configure Elasticsearch
 
 //Edit the configuration file by this command
 $ sudo nano /etc/elasticsearch/elasticsearch.yml
@@ -56,10 +55,10 @@ http.port: 9200
 
 //This configuration will make Elasticsearch listen all network interface (included the server IP) on port 9200
 
-//Restart the service after configuration update
+--Restart the service after configuration update
 $ sudo systemctl restart elasticsearch.service
 
-//Now, go to browser and check if Elasticsearch is running
+--Now, go to browser and check if Elasticsearch is running
 http://[server_ip_address]:9200/
 
 //You will see the respond with the ELasticsearch famous tag "You Know, for Search"
@@ -67,16 +66,14 @@ http://[server_ip_address]:9200/
 
 
 # Installing Kibana
-//Download and install the Debian pacakage manually
+--Download and install the Debian pacakage manually
 //The Debian package for Kibana v6.3.1 can be downloaded from the website and installed as follows:
-
 $ wget https://artifacts.elastic.co/downloads/kibana/kibana-6.3.1-amd64.deb
 $ shasum -a 512 kibana-6.3.1-amd64.deb
 $ sudo dpkg -i kibana-6.3.1-amd64.deb
 
-//Enable and run Kibana with systemd
+--Enable and run Kibana with systemd
 //To configure Kibana to start automatically when the system boots up, run the following commands:
-
 $ sudo systemctl enable kibana.service
 $ sudo systemctl start kibana.service
 
@@ -91,8 +88,9 @@ $ sudo systemctl stop kibana.service
 $ sudo nano /etc/kibana/kibana.yml
 
 
-#Install Nginx
-//Because we configured Kibana to listen on server IP, we must set up a reverse proxy to allow external access to it. We will use Nginx for this purpose.
+--Install Nginx
+//Because we configured Kibana to listen on server IP, we must set up a reverse proxy to allow external access to it
+//We will use Nginx for this purpose.
 
 //Use apt to install Nginx and Apache2-utils
 $ sudo apt-get install nginx apache2-utils
@@ -105,7 +103,7 @@ $ sudo nano /etc/nginx/sites-available/default
 
 //Be sure to update the server_name to match your server's name or IP and also the port where Elasticsearch running
 
-//Now restart Nginx to put our changes into effect
+--Now restart Nginx to put our changes into effect
 $ sudo service nginx restart
 
 //Kibana is now accessible via public IP address of your ELK Server i.e. http://[server_ip_address]:[kibana_port]
@@ -114,92 +112,42 @@ $ sudo service nginx restart
 
 
 # Installing Logstash
-//Download Logstash package
-$ wget --no-check-certificate https://artifacts.elastic.co/downloads/logstash/logstash-5.2.0.deb
+--Download and install the Debian package manually
+//The Debian package for Logstash v6.3.1 can be downloaded from the website and installed as follows:
+$ wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.1.deb
+$ shasum -a 512 logstash-6.3.1.deb
+$ sudo dpkg -i logstash-6.3.1.deb
 
-//Extract and install
-$ dpkg -i logstash-5.2.0.deb
+--Enable and run Logstash with systemd
+//To configure Logstash to start automatically when the system boots up, run the following commands:
+$ sudo systemctl enable logstash.service
+$ sudo systemctl start logstash.service
 
-//Logstash is installed but it is not configured yet
--- Generate SLL certificates
-$ sudo mkdir -p /etc/pki/tls/certs
-$ sudo mkdir /etc/pki/tls/private
+//To check the status of Logstash service
+$ sudo systemctl status logstash.service
 
---Using IP address
-//If you don't have a DNS setup—that would allow your servers, that you will gather logs from, to resolve the IP address of your ELK Server—you will have to add your ELK Server's private IP address to the subjectAltName (SAN) field of the SSL certificate that we are about to generate. To do so, open the OpenSSL configuration file:
+//To stop the service
+$ sudo systemctl stop logstash.service
+
+//If you don't have a DNS setup, you will have to add your ELK Server's private IP address to the subjectAltName (SAN)
+//To do so, open the OpenSSL configuration file
 $ sudo vi /etc/ssl/openssl.cnf
 
-//Find the [ v3_ca ] section in the file, and add this line under it (substituting in the ELK Server's private IP address):
-$ subjectAltName = IP: ELK_server_private_IP
-
-//Now generate the SSL certificate and private key in the appropriate locations (/etc/pki/tls/), with the following commands:
-$ cd /etc/pki/tls
-$ sudo openssl req -config /etc/ssl/openssl.cnf -x509 -days 3650 -batch -nodes -newkey rsa:2048 -keyout private/logstash-forwarder.key -out certs/logstash-forwarder.crt
+//Find the [ v3_ca ] section in the file, and add this line under it (substituting in the ELK Server's private IP address)
+subjectAltName = IP: ELK_server_private_IP
 
 --Configure Logstash
 //Let's create a configuration file input.conf and set up our "file" input:
 $ sudo nano /etc/logstash/conf.d/input.conf
 
-//Insert the following input configuration:
-input{
-	file{
-		#path=>"/var/log/apache2/access.log"
-		path=>"/home/jeryoctavianus/Desktop/data science/cuaca.log"
-		start_position=>"beginning"
-	}
-}
-
 //Let's create a configuration file filter.conf:
 $ sudo nano /etc/logstash/conf.d/filter.conf
-
-//Insert the following configuration
-filter{
-	grok{
-		match => {"message" => 
-			[
-			#IBANDUNG8, IBANDUNG29
-			'%{IP:ip_address} %{USER:identity} %{USER:auth} \[%{HTTPDATE:req_ts}\] "%{WORD:http_verb} %{GREEDYDATA:req_path}\?%{WORD:txt_id}=%{WORD:sensor_id}&%{WORD:txt_tempf}=%{NUMBER:tempf:float}&%{WORD:txt_humidity}=%{NUMBER:humidity:float}&%{WORD:txt_softwaretype}=%{GREEDYDATA:softwaretype}&%{WORD:txt_action}=%{WORD:action}&%{WORD:txt_realtime}=%{INT:realtime:int}&%{WORD:txt_rtfreq}=%{INT:rtfreq:int} %{GREEDYDATA:http_version}" %{INT:http_status:int} %{INT:num_bytes:int}',
-			#IBANDUNG8
-			'%{IP:ip_address} %{USER:identity} %{USER:auth} \[%{HTTPDATE:req_ts}\] "%{WORD:http_verb} %{GREEDYDATA:req_path}\?%{WORD:txt_id}=%{WORD:sensor_id}&%{WORD:txt_tempf}=%{NUMBER:tempf:float}&%{WORD:txt_humidity}=%{NUMBER:humidity:float}&%{WORD:txt_softwaretype}=%{GREEDYDATA:softwaretype}&%{WORD:txt_action}=%{WORD:action}&%{WORD:txt_realtime}=%{INT:realtime:int}&%{WORD:txt_rtfreq}=%{INT:rtfreq:int}&%{WORD:txt_dateutc}=%{GREEDYDATA:dateutc} %{GREEDYDATA:http_version}" %{INT:http_status:int} %{INT:num_bytes:int}',
-			#IBANDUNG4
-			'%{IP:ip_address} %{USER:identity} %{USER:auth} \[%{HTTPDATE:req_ts}\] "%{WORD:http_verb} %{GREEDYDATA:req_path}\?%{WORD:txt_id}=%{WORD:sensor_id}&%{WORD:txt_tempf}=%{NUMBER:tempf:float}&%{WORD:txt_humidity}=%{NUMBER:humidity:float}&%{WORD:txt_dewptf}=%{NUMBER:dewptf:float}&%{WORD:txt_windchill}=%{NUMBER:windchillf:float}&%{WORD:txt_winddir}=%{NUMBER:winddir:float}&%{WORD:txt_windspeed}=%{NUMBER:windspeedmph:float}&%{WORD:txt_windgust}=%{NUMBER:windgustmph:float}&%{WORD:txt_rain}=%{NUMBER:rainin:float}&%{WORD:txt_dailyrainin}=%{NUMBER:dailyrainin:float}&%{WORD:txt_weeklyrain}=%{NUMBER:weeklyrainin:float}&%{WORD:txt_monthlyrain}=%{NUMBER:monthlyrainin:float}&%{WORD:txt_yearlyrain}=%{NUMBER:yearly_rainin:float}&%{WORD:txt_solarradiation}=%{NUMBER:solarradiation:float}&%{WORD:txt_UV}=%{NUMBER:uv:float}&%{WORD:txt_indoortempf}=%{NUMBER:indoortempf:float}&%{WORD:txt_indoorhumidity}=%{NUMBER:indoorhumidity:float}&%{WORD:txt_baromin}=%{NUMBER:baromin:float}&%{WORD:txt_lowbatt}=%{NUMBER:lowbatt:float}&%{WORD:txt_dateutc}=%{GREEDYDATA:dateutc}&%{WORD:txt_softwaretype}=%{GREEDYDATA:softwaretype}&%{WORD:txt_action}=%{WORD:action}&%{WORD:txt_realtime}=%{INT:realtime:int}&%{WORD:txt_rtfreq}=%{INT:rtfreq:int} %{GREEDYDATA:http_version}" %{INT:http_status:int} %{INT:num_bytes:int}',
-			#IBANDUNG7
-			'%{IP:ip_address} %{USER:identity} %{USER:auth} \[%{HTTPDATE:req_ts}\] "%{WORD:http_verb} %{GREEDYDATA:req_path}\?%{WORD:txt_id}=%{WORD:sensor_id}&%{WORD:txt_action}=%{WORD:action}&%{WORD:txt_realtime}=%{INT:realtime:int}&%{WORD:txt_rtfreq}=%{INT:rtfreq:int}&%{WORD:txt_dewptf}=%{NUMBER:dewptf:float}&%{WORD:txt_windspeed}=%{NUMBER:windspeedmph:float}&%{WORD:txt_softwaretype}=%{GREEDYDATA:softwaretype}&%{WORD:txt_dateutc}=%{GREEDYDATA:dateutc}&%{WORD:txt_tempf}=%{NUMBER:tempf:float}&%{WORD:txt_humidity}=%{NUMBER:humidity:float} %{GREEDYDATA:http_version}" %{INT:http_status:int} %{INT:num_bytes:int}',
-			#IBANDUNG10, IBANDUNG24, IBANDUNG26
-			'%{IP:ip_address} %{USER:identity} %{USER:auth} \[%{HTTPDATE:req_ts}\] "%{WORD:http_verb} %{GREEDYDATA:req_path}\?%{WORD:txt_id}=%{WORD:sensor_id}&%{WORD:txt_tempf}=%{NUMBER:tempf:float}&%{WORD:txt_humidity}=%{NUMBER:humidity:float}&%{WORD:txt_dewptf}=%{NUMBER:dewptf:float}&%{WORD:txt_windchill}=%{NUMBER:windchillf:float}&%{WORD:txt_winddir}=%{NUMBER:winddir:float}&%{WORD:txt_windspeed}=%{NUMBER:windspeedmph:float}&%{WORD:txt_windgust}=%{NUMBER:windgustmph:float}&%{WORD:txt_rain}=%{NUMBER:rainin:float}&%{WORD:txt_dailyrainin}=%{NUMBER:dailyrainin:float}&%{WORD:txt_weeklyrain}=%{NUMBER:weeklyrainin:float}&%{WORD:txt_monthlyrain}=%{NUMBER:monthlyrainin:float}&%{WORD:txt_yearlyrain}=%{NUMBER:yearlyrainin:float}&%{WORD:txt_solarradiation}=%{NUMBER:solarradiation:float}&%{WORD:txt_UV}=%{NUMBER:uv:float}&%{WORD:txt_indoortempf}=%{NUMBER:indoortempf:float}&%{WORD:txt_indoorhumidity}=%{NUMBER:indoorhumidity:float}&%{WORD:txt_baromin}=%{NUMBER:baromin:float}&%{WORD:txt_lowbatt}=%{NUMBER:lowbatt:float}&%{WORD:txt_dateutc}=%{GREEDYDATA:dateutc}&%{WORD:txt_softwaretype}=%{GREEDYDATA:softwaretype}&%{WORD:txt_action}=%{WORD:action}&%{WORD:txt_realtime}=%{INT:realtime:int}&%{WORD:txt_rtfreq}=%{INT:rtfreq:int} %{GREEDYDATA:http_version}" %{INT:http_status:int} %{INT:num_bytes:int}'
-			]
-		}
-	}
-
-	mutate{
-			convert=>{
-				"response"=>"integer"
-				"bytes"=>"integer"
-			}
-	}
-
-	mutate{
-			remove_field => [ "headers", "@version", "host", "identity", "auth", "http_verb", "req_path", "txt_id", "txt_tempf", "txt_humidity", "txt_softwaretype", "txt_action", "txt_realtime", "txt_rtfreq", "txt_dewptf", "txt_windchill", "txt_winddir", "txt_windspeed", "txt_windgust", "txt_rain", "txt_dailyrainin", "txt_weeklyrain", "txt_monthlyrain", "txt_yearlyrain", "txt_solarradiation", "txt_UV", "txt_indoortempf", "txt_indoorhumidity", "txt_baromin", "txt_lowbatt", "txt_dateutc", "http_version", "http_status", "num_bytes" ]
-	}
-}
 
 //Let's create a configuration file output.conf:
 $ sudo nano /etc/logstash/conf.d/output.conf
 
-//Insert the following configuration
-output{
-	elasticsearch{
-		hosts => ["202.138.234.141:9200"]
-		index => "cuaca"
-		document_type => "default"
-		http_compression => true
-	}
-}
+--Restart Logstash to put our configuration changes into effect:
+$ sudo systemctl restart logstash.service
 
-//Test your Logstash configuration with this command:
-$ sudo service logstash configtest
-
-//It should display Configuration OK if there are no syntax errors. Otherwise, try and read the error output to see what's wrong with your Logstash configuration.
-
-//Restart Logstash, and enable it, to put our configuration changes into effect:
-$ sudo service logstash restart
+//Check the status. It will run in some minutes
+//if there are no syntax errors. Otherwise, try and read the error output to see what's wrong with your Logstash configuration.
