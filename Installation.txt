@@ -118,16 +118,15 @@ $ wget https://artifacts.elastic.co/downloads/logstash/logstash-6.3.1.deb
 $ shasum -a 512 logstash-6.3.1.deb
 $ sudo dpkg -i logstash-6.3.1.deb
 
---Enable and run Logstash with systemd
+--Run Logstash as a service
 //To configure Logstash to start automatically when the system boots up, run the following commands:
-$ sudo systemctl enable logstash.service
-$ sudo systemctl start logstash.service
+$ sudo service logstash start 
 
 //To check the status of Logstash service
-$ sudo systemctl status logstash.service
+$ sudo service logstash status
 
 //To stop the service
-$ sudo systemctl stop logstash.service
+$ sudo service logstash stop
 
 //If you don't have a DNS setup, you will have to add your ELK Server's private IP address to the subjectAltName (SAN)
 //To do so, open the OpenSSL configuration file
@@ -137,7 +136,7 @@ $ sudo nano /etc/ssl/openssl.cnf
 subjectAltName = IP: ELK_server_private_IP
 
 --Configure Logstash
-//Let's create a configuration file input.conf and set up our "file" input:
+//Let's create a configuration file input.conf and set up our file input:
 $ sudo nano /etc/logstash/conf.d/input.conf
 
 //Let's create a configuration file filter.conf:
@@ -147,7 +146,7 @@ $ sudo nano /etc/logstash/conf.d/filter.conf
 $ sudo nano /etc/logstash/conf.d/output.conf
 
 --Restart Logstash to put our configuration changes into effect:
-$ sudo systemctl restart logstash.service
+$ sudo service logstash restart
 
 //Check the status. It will run in some minutes
 //if there are no syntax errors. Otherwise, try and read the error output to see what's wrong with your Logstash configuration.
