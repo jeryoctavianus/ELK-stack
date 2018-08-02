@@ -150,3 +150,13 @@ $ sudo service logstash restart
 
 //Check the status. It will run in some minutes
 //if there are no syntax errors. Otherwise, try and read the error output to see what's wrong with your Logstash configuration.
+
+Notes:
+1. If the Elasticsearch run on server with firewall, then you need to allow the IP server (where Logstash run) to connect to Elasticsearch port.
+Example: sudo ufw allow from [IP_server_Logstash] to any port [ES_port]
+
+2. Check the input file, sometime Logstash do not get access to open the input file. Logstash got 'permission denied' for Nginx .log file.
+To overcome this issue, first edit the init file.
+$ sudo nano /etc/init.d/logstash
+Then modify the 'group=logstash' to 'group=adm'. Then save and exit.
+$ sudo service logstash restart
