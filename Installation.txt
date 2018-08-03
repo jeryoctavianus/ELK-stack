@@ -23,7 +23,7 @@ $ javac -version
 
 
 # Installing Elasticsearch
---Download and install the Debian pacakage manually
+--Download and install the Debian package manually
 //The Debian package for Elasticsearch v6.3.1 can be downloaded from the website and installed as follows:
 $ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb
 $ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb.sha512
@@ -43,7 +43,6 @@ $ sudo systemctl stop elasticsearch.service
 
 
 --Configure Elasticsearch
-
 //Edit the configuration file by this command
 $ sudo nano /etc/elasticsearch/elasticsearch.yml
 
@@ -61,7 +60,9 @@ $ sudo systemctl restart elasticsearch.service
 --Now, go to browser and check if Elasticsearch is running
 http://[server_ip_address]:9200/
 
-//You will see the respond with the ELasticsearch famous tag "You Know, for Search"
+//If there is no error, you will see the respond with the ELasticsearch famous tag "You Know, for Search"
+
+Notes: In server, you need to make this service (Elasticsearch) to be auto-restart when the server crash or reboot
 
 
 
@@ -106,8 +107,10 @@ $ sudo nano /etc/nginx/sites-available/default
 --Now restart Nginx to put our changes into effect
 $ sudo service nginx restart
 
-//Kibana is now accessible via public IP address of your ELK Server i.e. http://[server_ip_address]:[kibana_port]
+//Kibana is now accessible via public IP address of your server i.e. http://[server_ip_address]:[kibana_port]
 //Go to browser and enter the credentials
+
+Notes: You also need to make this service (Kibana) to be auto-restart when the server crash or reboot
 
 
 
@@ -148,8 +151,8 @@ $ sudo nano /etc/logstash/conf.d/output.conf
 --Restart Logstash to put our configuration changes into effect:
 $ sudo service logstash restart
 
-//Check the status. It will run in some minutes
-//if there are no syntax errors. Otherwise, try and read the error output to see what's wrong with your Logstash configuration.
+//Check the status. It will run in some minutes, if there are no syntax errors.
+//Otherwise, try and read the error output to see what's wrong with your Logstash configuration.
 
 Notes:
 1. If the Elasticsearch run on server with firewall, then you need to allow the IP server (where Logstash run) to connect to Elasticsearch port.
@@ -158,5 +161,7 @@ Example: sudo ufw allow from [IP_server_Logstash] to any port [ES_port]
 2. Check the input file, sometime Logstash do not get access to open the input file. Logstash got 'permission denied' for Nginx .log file.
 To overcome this issue, first edit the init file.
 $ sudo nano /etc/init.d/logstash
-Then modify the 'group=logstash' to 'group=adm'. Then save and exit.
+Then modify the 'group=logstash' to 'group=adm'. Save and exit.
 $ sudo service logstash restart
+
+3. Make Logstash service to be auto-restart when the server crash or reboot
