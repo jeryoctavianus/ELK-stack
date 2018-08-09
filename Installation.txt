@@ -167,3 +167,5 @@ $ sudo service logstash restart
 3. Make Logstash service to be auto-restart when the server crash or reboot
 
 4. Untuk server produksi, cukup menggunakan IP saja tanpa port. Hal ini dikarenakan server produksi dedicated untuk melayani service itu saja. Sedangkan, di server development harus berbagi dengan service lainnya.
+
+5. Backup and restore
