@@ -17,7 +17,7 @@ $ sudo apt-get update
 //Oracle JDK8
 $ sudo apt-get install oracle-java8-installer
 
-//Check Java version you are running to see verison 1.8.*
+//Check Java version you are running to see version 1.8.*
 $ javac -version
 
 
@@ -169,3 +169,5 @@ $ sudo service logstash restart
 4. Untuk server produksi, cukup menggunakan IP saja tanpa port. Hal ini dikarenakan server produksi dedicated untuk melayani service itu saja. Sedangkan, di server development harus berbagi dengan service lainnya.
 
 5. Backup and restore
+
+6. Find error or warning message through /var/log
